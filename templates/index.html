@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Purview App</title>
+        <style>
+            #output-box {
+                border: 1px solid blueviolet;
+                font-size:10pt;
+                height:50px;
+                width:80%;
+                padding: 10px;
+                margin-left: 10%;
+                margin-top: 5px;
+            }
+            #txtbox
+            {
+                border: 1px solid blueviolet;
+                font-size:10pt;
+                height:50px;
+                width: 80%;
+                padding: 10px;
+                margin-left: 10%;
+                margin-top: 5px;
+            }
+        </style>
+    </head>
+    <body>
+        <img src="{{ url_for('static', filename='app5_img1.jpg') }}" alt="HTML5 Icon" width="100%" height="128">
+        <form method="post">
+            <br><br><label for="user_input" style="font-size:15pt;color:blueviolet"><center>Enter something:</center></label><br> 
+            <!input type="text" id="user_input" name="user_input" style="txtbox">
+            <!input type="text" id="user_input" name="user_input" style="font-size:10pt;color:blueviolet;height:50px;width:800px;">
+            <input type="text" id="txtbox" name="user_input" value="{{ input }}"><br><br>&ensp;
+            {% if input == null %}
+            <input type="submit" style="color:blue; margin-left: 45%;width: 125px" value="Submit"><br><br>
+            {% endif %}
+        </form> 
+        {% if output %}
+            <p>
+                <div style="font-size:15pt;color:blueviolet"><center>Your input in uppercase:</center></div> </p>
+            <div id="output-box">
+                {{ output }}
+                {{policy_object}}
+            </div>
+        {% endif %}
+        {% if input %}
+            <br><br><label for="user_input1" style="font-size:15pt;color:blueviolet"><center>Enter something:</center></label> 
+            <input type="text1" id="txtbox" name="user_input" ><br>;
+            <div style="width: 100%;">
+                <div style="width: 50%; height: 50px; float: left; background: white;"> 
+                    <input type="submit" name="Update" style="color:blue; margin-left: 45%;width: 125px" value="Update"> 
+                </div>
+                <div style="margin-left: 50%; height: 50px; background: white;"> 
+                    <input type="submit" name="Approve" style="color:blue; margin-left: 40%;width: 125px" value="Approve">
+                </div>
+            </div>
+            <br><br>
+        {% endif %}
+    </body>
+</html>
