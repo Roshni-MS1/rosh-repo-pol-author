@@ -21,6 +21,21 @@ def index():
         user_input = request.form.get('user_input')
         user_input_next = request.form.get( 'user_input_next')
         user_input_his = request.form.get( 'user_input_his')
+        print (request.form.get('submit'))
+        
+        if 'policyinput' in request.form:
+            print ("policy create")
+        elif 'Update' in request.form:
+            print ("policy update")
+            pass
+        elif 'Approve' in request.form:
+            output= request.form.get('outputfinal')
+            print ("policy approve = ",output)
+            return render_template('index.html', finalpolicy=output)
+        else:
+            print ("clear page")
+            return render_template('index.html')
+            
 
         print ("us=", user_input)
         print ("us1=",user_input_next)
@@ -43,12 +58,13 @@ def index():
        # output = url_for("index", result=response.choices[0].text)
        #json string data
 
-        #response = openai.ChatCompletion.create(
+        response = openai.ChatCompletion.create(
         #    model="text-davinci-003",
-        #    prompt=prompt,
-        #    temperature=0.6,
-        #)
-    
+            model="text-ada-001",
+            messages=prompt,
+            temperature=0.6,
+        )
+        print(['choices'][0]['message']['content'])
         policy_string = '{"Action": "Deny", "operation": "Read", "classification": "Confidential", "user":"roshni@microsoft.com"}'
 
         #convert string to  object
