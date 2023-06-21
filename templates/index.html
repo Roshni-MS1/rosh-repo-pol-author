@@ -38,7 +38,7 @@
         <form method="post">
             {% if finalpolicy %}
                 <br><br><label for="user_input" style="font-size:15pt;color:blueviolet"><center>Policy created: </center></label><br>
-                <label for="user_input" style="font-size:15pt;color:black"><center> {{finalpolicy}} </center></label>
+                <textarea for="finalpolicy" id="txtbox">{{ finalpolicy }}</textarea>
                 <input type="submit" name="Clear" style="color:blue; margin-left: 48%; margin-top: 10%; width: 125px" value="Done">
             {% else %}
                 {% if input == null %}
