@@ -25,31 +25,36 @@ def index():
         
         if 'policyinput' in request.form:
             print ("policy create")
+            pass
         elif 'Update' in request.form:
             print ("policy update")
             pass
         elif 'Approve' in request.form:
             output= request.form.get('outputfinal')
-            print ("policy approve = ",output)
+            #print ("policy approve = ",output)
             return render_template('index.html', finalpolicy=output)
         else:
-            print ("clear page")
+            #print ("clear page")
             return render_template('index.html')
             
 
         print ("us=", user_input)
-        print ("us1=",user_input_next)
-        print ("us1=",user_input_his)
+        #print ("us1=",user_input_next)
+        #print ("us2=",user_input_his)
         
         if user_input_next != None : 
+            #add chat history 
             prompt = ast.literal_eval(user_input_his)  
+            #request updates to policy suggestion
             prompt.append({"role": "user", "content": user_input_next})
         else:
-            prompt.append({"role": "user", "content": user_input})
+            #First Prompt Creation
+            userprompt = generate_first_prompt(user_input)
+            prompt.append({"role": "user", "content": userprompt})
             
         user_input_his = prompt
-        print ("prompt=", prompt)
-
+        #print ("prompt=", prompt)
+        output = prompt
        # response = openai.Completion.create(
        #     model="text-davinci-003",
        #     prompt=generate_prompt1(user_input),
@@ -58,38 +63,64 @@ def index():
        # output = url_for("index", result=response.choices[0].text)
        #json string data
 
-        response = openai.ChatCompletion.create(
+        #response = openai.ChatCompletion.create(
         #    model="text-davinci-003",
-            model="text-ada-001",
-            messages=prompt,
-            temperature=0.6,
-        )
-        print(['choices'][0]['message']['content'])
-        policy_string = '{"Action": "Deny", "operation": "Read", "classification": "Confidential", "user":"roshni@microsoft.com"}'
+        #    model="text-ada-001",
+        #    model="gpt-3.5-turbo",
+        #    messages=prompt,
+        #    temperature=0.6,
+        #)
 
+        #if 'choices' in response:
+        #    if len(response['choices']) > 0:
+        #        output = response.choices[0]["message"]["content"]
+        #        print("ChatGPT output=", output)
+        #    else:
+        #        print("response len 0")
+        #else:
+        #    print("Opps sorry, you beat the AI this time")
+
+        output = '{"Action" : "Allow", "method" : "included", "users" : "Marketing Department", "Label" : "Location"}'
+        #policy_json_object = json.loads(output)
+        
+        policystr = genpolicyfromjson(output)
         #convert string to  object
-        json_object = json.loads(policy_string)
-
-        #check new data type
-        print(prompt)
         input=listToString(prompt)
-        output = prompt
-        return render_template('index.html', output=output, input=input, input_his=user_input_his, policy_object=json_object)
+        print (user_input)
+        return render_template('index.html', output=policystr, policy_json_hodden=output, input=user_input, input_his=user_input_his)
     return render_template('index.html')
 
 
+def genpolicyfromjson(output):
+    
+    strpolicy = "" 
+    policy_json_object = json.loads(output)
 
-def generate_prompt1(animal):
-    return """Suggest three names for an animal that is a superhero.
+    if policy_json_object["method"] == "included":
+        if policy_json_object["Action"] == "Allow":
+            strpolicy = "Allow "   
+        elif policy_json_object["Action"] == "Deny":
+            strpolicy = "Deny "
+        else:
+            print ("Invalid Action")
+            return ""
+        strpolicy = strpolicy + policy_json_object["users"] + " access to " + policy_json_object["Label"] + " data."
+        return strpolicy
+    elif policy_json_object["method"] == "excluded": 
+        if policy_json_object["Action"] == "Allow":
+            strpolicy = "Allow "    
+        elif policy_json_object["Action"] == "Deny":
+            strpolicy = "Deny "
+        else:
+            print ("Invalid Action")
+            return ""
+        strpolicy = strpolicy + policy_json_object["users"] + " access to all data except " + policy_json_object["Label"] + " data."           
+        return strpolicy    
+    else:
+        print ("Invalid Method")
+        return ""   
+    
 
-Animal: Cat
-Names: Captain Sharpclaw, Agent Fluffball, The Incredible Feline
-Animal: Dog
-Names: Ruff the Protector, Wonder Canine, Sir Barks-a-Lot
-Animal: {}
-Names:""".format(
-        animal.capitalize()
-    )
 
 
 def update_prompt_chat(role, content, prompt):
@@ -106,6 +137,51 @@ def listToString(list):
 
     # return string
     return str1
+
+
+def generate_first_prompt(usernlpolicy):
+    str1 = ""
+    return f"""Create JSON from the text
+
+Text 1: Only users that are FTE_Full_Time should be able to access Confidential Data 
+JSON 1: {{\"Action\" :  \"Allow\", \"method\" : \"included\", \"users\" : \"FTE_Full_Time\", \"Label\" : \"Confidential\"\}} 
+## 
+Text 2: Users that are in Finance must be able to access Credit_Card Data 
+JSON 2: {{\"Action\" : \"Allow\", \"method\" : \"included", \"users\": \"FTE_Full_Time\", \"Label\" : \"Confidential\"}} 
+## 
+Text 2: Users that are Full_time_employees must be able to access Credit_Card Data 
+JSON 2: {{\"Action\" : \"Allow\", \"method\": \"included\", \"users\": \"Full_time_employee\", \"Label\" : \"Confidential\"}}
+## 
+Text 3: Everyone except Roshni must be denied access confidential data
+JSON 3: {{\"Action\" : \"Deny\", \"method\" : \"excluded\", \"users\": \"Roshni\", \"Label\" : \"Confidential\"}}
+## 
+Text 3: Everyone except Roshni must be able to access confidential data
+JSON 3: {{\"Action\" : \"Allow\", \"method\" : \"excluded\", \"users\": \"Roshni\", \"Label\" : \"Confidential\"}}
+## 
+Text 4: Contractors must not be able to access confidential data
+JSON 4: {{\"Action\" : \"Deny\", \"method\" : \"included\", \"users\": \"Contractors\", \"Label\" : \"Confidential\"}}
+## 
+Text 5: Contractors must be denied access to confidential data
+JSON 5: {{\"Action\" : \"Deny\", \"method\" : \"included\", \"users\": \"Contractors\", \"Label\" : \"Confidential\"}}
+##
+Test 6: {usernlpolicy}
+JASON 6: 
+
+## 
+If the sentence includes \“able to access data\”, or \“granted access\” or \“allowed to see or process\” or something similar then Action is \“Allow\”. If the sentence includes \“not allowed to\” or \“denied\” or \“not granted\” then action is \“Deny\”. If the sentence includes \“No other user except\” or \“everyone except\” or something similar, then method is excluded. If sentence specifies All users or everyone or something similar, then method is included. Also, \“everyone\” or \“everyone except\" are not users. Users are names, users working in a department or company or organization. For the results provide JSON only and no explanation 
+"""
+
+
+#def generate_prompt1(animal):
+#    return f"""Suggest three names for an animal that is a superhero.
+#Animal: Cat
+#Names: Captain Sharpclaw, Agent Fluffball, The Incredible Feline
+#Animal: Dog
+#Names: Ruff the Protector, Wonder Canine, Sir Barks-a-Lot
+#Animal: {}
+#Names:""".format(
+#        animal.capitalize()
+#    )
 
 
 if __name__ == '__main__':

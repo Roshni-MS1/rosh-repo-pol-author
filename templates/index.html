@@ -6,17 +6,26 @@
             #output-box {
                 border: 1px solid blueviolet;
                 font-size:10pt;
-                height:50px;
+                height:90px;
                 width:80%;
                 padding: 10px;
                 margin-left: 10%;
                 margin-top: 5px;
             } 
+            #output-box-small {
+                border: 1px solid blueviolet;
+                font-size:10pt;
+                height:20px;
+                width:80%;
+                padding: 10px;
+                margin-left: 10%;
+                margin-top: 5px;
+            }
             #txtbox
             {
                 border: 1px solid blueviolet;
                 font-size:10pt;
-                height:50px;
+                height:90px;
                 width: 80%;
                 padding: 10px;
                 margin-left: 10%;
@@ -37,25 +46,25 @@
                     <input type="text" id="txtbox" name="user_input" value="{{ input }}"><br><br>&ensp;
                     <input type="submit" name="policyinput" style="color:blue; margin-left: 47%;width: 125px" value="Submit"><br><br>
                 {% else %}
-                <br><br><label for="user_input" style="font-size:15pt;color:blueviolet"><center> Policy generation criteria </center></label><br>
+                    <br><br><label for="user_input" style="font-size:15pt;color:blueviolet"><center> Policy generation criteria </center></label><br>
                     <textarea for="user_input_text" id="txtbox">{{ input }}</textarea>
+                    <input type="hidden" id="user_input" name="user_input" value= "{{ input }}"">
                 {% endif %}
             {% endif %} 
-        </form> 
+
         {% if output %}
             <p>
                 <div style="font-size:15pt;color:blueviolet"><center>Generated Policy</center></div> </p>
             <div id="output-box">
                 {{ output }}
-                {{policy_object}}
             </div>
-        {% endif %}
+        {% endif %} 
         {% if input %}
-        <form method="post">
-            <br><br><label for="user_input1" style="font-size:15pt;color:blueviolet"><center>Any updates to above policy ?</center></label> 
+             <br><br><br><br>
+             <label for="user_input1" style="font-size:12pt;color:blueviolet"><center> Policy updates </center></label> 
             <input type="hidden" id="user_input_his" name="user_input_his" value= "{{ input_his }}"">
             <input type="hidden" id="outputfinal" name="outputfinal" value= "{{ output }}"">
-            <input type="text1" id="txtbox" name="user_input_next" ><br>;
+            <input type="text1" id="output-box-small" name="user_input_next" ><br>;
             <div style="width: 100%;">
                 <div style="width: 50%; height: 50px; float: left; background: white;"> 
                     <input type="submit" name="Update" style="color:blue; margin-left: 45%;width: 125px" value="Update"> 
@@ -65,7 +74,7 @@
                 </div>
             </div>
             <br><br>
-            <input type="submit" name="Clear" style="color:blue; margin-left: 48%; margin-top: 10%; width: 125px" value="Clear">
+            <input type="submit" name="Clear" style="color:blue; margin-left: 48%; margin-bottom: 5%; width: 125px" value="Discard">
         </form>
         {% endif %}
     </body> 
