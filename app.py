@@ -63,31 +63,31 @@ def index():
        # output = url_for("index", result=response.choices[0].text)
        #json string data
 
-        #response = openai.ChatCompletion.create(
+        response = openai.ChatCompletion.create(
         #    model="text-davinci-003",
         #    model="text-ada-001",
-        #    model="gpt-3.5-turbo",
-        #    messages=prompt,
-        #    temperature=0.6,
-        #)
+            model="gpt-3.5-turbo",
+            messages=prompt,
+            temperature=0.6,
+        )
 
-        #if 'choices' in response:
-        #    if len(response['choices']) > 0:
-        #        output = response.choices[0]["message"]["content"]
-        #        print("ChatGPT output=", output)
-        #    else:
-        #        print("response len 0")
-        #else:
-        #    print("Opps sorry, you beat the AI this time")
+        if 'choices' in response:
+            if len(response['choices']) > 0:
+                output = response.choices[0]["message"]["content"]
+                print("ChatGPT output=", output)
+            else:
+                print("response len 0")
+        else:
+            print("Opps sorry, you beat the AI this time")
 
-        output = '{"Action" : "Allow", "method" : "included", "users" : "Marketing Department", "Label" : "Location"}'
+        #output = '{"Action" : "Allow", "method" : "included", "users" : "Marketing Department", "Label" : "Location"}'
         #policy_json_object = json.loads(output)
         
-        policystr = genpolicyfromjson(output)
+        #policystr = genpolicyfromjson(output)
         #convert string to  object
         input=listToString(prompt)
         print (user_input)
-        return render_template('index.html', output=policystr, policy_json_hodden=output, input=user_input, input_his=user_input_his)
+        return render_template('index.html', output=output, policy_json_hidden=output, input=user_input, input_his=user_input_his)
     return render_template('index.html')
 
 
@@ -105,6 +105,7 @@ def genpolicyfromjson(output):
             print ("Invalid Action")
             return ""
         strpolicy = strpolicy + policy_json_object["users"] + " access to " + policy_json_object["Label"] + " data."
+        strpolicy = strpolicy +"\n\nJSON:\n" +   output
         return strpolicy
     elif policy_json_object["method"] == "excluded": 
         if policy_json_object["Action"] == "Allow":
@@ -115,6 +116,7 @@ def genpolicyfromjson(output):
             print ("Invalid Action")
             return ""
         strpolicy = strpolicy + policy_json_object["users"] + " access to all data except " + policy_json_object["Label"] + " data."           
+        strpolicy = strpolicy +"\n\nJSON:\n" +   output
         return strpolicy    
     else:
         print ("Invalid Method")
@@ -168,7 +170,7 @@ Test 6: {usernlpolicy}
 JASON 6: 
 
 ## 
-If the sentence includes \“able to access data\”, or \“granted access\” or \“allowed to see or process\” or something similar then Action is \“Allow\”. If the sentence includes \“not allowed to\” or \“denied\” or \“not granted\” then action is \“Deny\”. If the sentence includes \“No other user except\” or \“everyone except\” or something similar, then method is excluded. If sentence specifies All users or everyone or something similar, then method is included. Also, \“everyone\” or \“everyone except\" are not users. Users are names, users working in a department or company or organization. For the results provide JSON only and no explanation 
+If the sentence includes \“able to access data\”, or \“granted access\” or \“allowed to see or process\” or something similar then Action is \“Allow\”. If the sentence includes \“not allowed to\” or \“denied\” or \“not granted\” then action is \“Deny\”. If the sentence includes \“No other user except\” or \“everyone except\” or something similar, then method is excluded. If sentence specifies All users or everyone or something similar, then method is included. Also, \“everyone\” or \“everyone except\" are not users. Users are names, users working in a department or company or organization. For the results provide only JSON data and no explanation 
 """
 
 
